@@ -47,7 +47,7 @@ class BotCommands:
         message = "<b>Market: {} KUNA Exchange</b>.\n<b>Buy:</b> {:.2f} UAH\n" \
                   "<b>Sell</b>: {:.2f} UAH\n<b>Last deal price:</b> {:.2f} UAH\n" \
                   "<b>Lowest in 24h:</b> {:.2f} UAH\n<b>Highest in 24h:</b> {:.2f} UAH\n" \
-                  "<b>Trading Vol. 24h:</b> {} BTC\n" \
+                  "<b>Trading vol. 24h:</b> {} BTC\n" \
                   "<b>Trading vol. 24h:</b> {:.2f} UAH".format(*message_data)
         return message
 
