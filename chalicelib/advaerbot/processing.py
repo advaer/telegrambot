@@ -44,7 +44,7 @@ class BotCommands:
             data.get('ticker').get('vol'),
             round(float(data.get('ticker').get('price')), 2)
         ]
-        message = "<b>Market: {} KUNA Exchange</b>.\n<b>Buy:</b> {:.2f} UAH\n" \
+        message = "<b>Market: {} KUNA Exchange</b>.\n\n<b>Buy:</b> {:.2f} UAH\n" \
                   "<b>Sell</b>: {:.2f} UAH\n<b>Last deal price:</b> {:.2f} UAH\n" \
                   "<b>Lowest in 24h:</b> {:.2f} UAH\n<b>Highest in 24h:</b> {:.2f} UAH\n" \
                   "<b>Trading vol. 24h:</b> {} BTC\n" \
