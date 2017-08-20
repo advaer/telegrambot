@@ -1,0 +1,12 @@
+{
+  "dev": {
+    "api_handler_name": "advaerbot-dev",
+    "api_handler_arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev",
+    "lambda_functions": {},
+    "backend": "api",
+    "chalice_version": "1.0.1",
+    "rest_api_id": "8l0l1c6rr8",
+    "api_gateway_stage": "api",
+    "region": "eu-central-1"
+  }
+}
