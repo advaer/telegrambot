@@ -45,10 +45,10 @@ class BotCommands:
             round(float(data.get('ticker').get('price')), 2)
         ]
         message = "<b>Market: {} KUNA Exchange</b>.\n<b>Buy:</b> {:.2f} UAH\n" \
-                  "<b>Sell</b>: {:.2f} UAH\n<b>Last deal:</b> {}\n" \
-                  "<b>Lowest in 24h:</b> {:.2f} UAH\n<b>Highest in 24h:</b> {} UAH\n" \
+                  "<b>Sell</b>: {:.2f} UAH\n<b>Last deal:</b> {:.2f}\n" \
+                  "<b>Lowest in 24h:</b> {:.2f} UAH\n<b>Highest in 24h:</b> {:.2f} UAH\n" \
                   "<b>Trading Vol. 24h:</b> {} BTC\n" \
-                  "<b>Trading vol. 24h:</b> {} UAH".format(*message_data)
+                  "<b>Trading vol. 24h:</b> {:.2f} UAH".format(*message_data)
         return message
 
 
