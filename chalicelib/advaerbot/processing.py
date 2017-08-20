@@ -17,7 +17,7 @@ class BotCommands:
 
     def _get_static_text(self, **kwargs):
         TEXT = {
-            '/start': "Hi! I am test Telegram bot developed by <b>Rinat Advaer</b>.\n"
+            '/start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n"
                       "/help - use it for help.\n"
                       "/chuck - get new fact about Chuck Norris.\n"
                       "/btc - KUNA BTC ticker info.\n"
@@ -48,7 +48,7 @@ class BotCommands:
                   "<b>Sell</b>: {:.2f} UAH\n<b>Last deal:</b> {}\n" \
                   "<b>Lowest in 24h:</b> {:.2f} UAH\n<b>Highest in 24h:</b> {} UAH\n" \
                   "<b>Trading Vol. 24h:</b> {} BTC\n" \
-                  "<b>Trading vol. 24h:</b> {} BTC".format(*message_data)
+                  "<b>Trading vol. 24h:</b> {} UAH".format(*message_data)
         return message
 
 
@@ -57,15 +57,20 @@ class BotProcessing:
         self.commands = BotCommands()
 
     def process(self, data):
-        message = data.get("message")
+        request = data.get("message").get('text')
+        chat_id = data.get("message").get('chat').get('id')
+        command = self.commands.known_commands.get(request)
+        response_text = "Oops... I don't know this command. Try again!"
 
-        if message:
-            r = requests.post(
-                'https://api.telegram.org/bot385440215:AAEBzlx5FLSJ6m8aF2CrQtl0NIy7oR1YDqQ/sendMessage',
-                data={
-                    "chat_id": message.get('from').get('id'),
-                    "parse_mode": "HTML",
-                    "text": self.commands.known_commands.get(message.get('text'))(key=message.get('text'))
-                }
-            )
+        if command:
+            response_text = command(key=request)
+
+        r = requests.post(
+            'https://api.telegram.org/bot385440215:AAEBzlx5FLSJ6m8aF2CrQtl0NIy7oR1YDqQ/sendMessage',
+            data={
+                "chat_id": chat_id,
+                "parse_mode": "HTML",
+                "text": response_text
+            }
+        )
         return {'status': r.status_code}
