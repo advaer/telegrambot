@@ -1,7 +1,8 @@
-from chalice import Chalice
+from chalice import Chalice, Rate
 import json
 from chalicelib.telegrambot.processing import BotProcessing
-
+from chalicelib.telegrambot.commands import BotCommands
+from chalicelib.telegrambot.utils import send_html_message
 
 app = Chalice(app_name='advaerbot')
 app.debug = True
@@ -14,3 +15,11 @@ def index():
     app.log.debug(json.dumps(data))
     response = processing.process(data)
     return response
+
+
+@app.schedule(Rate(45, unit=Rate.MINUTES))
+def inform(event):
+    commands = BotCommands()
+    content = "AUTO INFORM\n{}".format(commands.get_ticker(market='btcuah'))
+    chat_id = 371271568
+    send_html_message(chat_id=chat_id, content=content)
