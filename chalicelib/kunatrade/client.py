@@ -9,7 +9,7 @@ from . import settings
 
 class KunaClient:
 
-    def __init__(self, settings):
+    def __init__(self):
         self.BASE_API_URL = settings.BASE_API_URL
         self.PUBLIC_KEY = settings.PUBLIC_KEY
         self.SECRET_KEY = settings.SECRET_KEY
@@ -84,4 +84,4 @@ class KunaClient:
         return r.json()
 
 
-client = KunaClient(settings)
+client = KunaClient()
