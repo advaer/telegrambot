@@ -34,12 +34,10 @@ class KunaClient:
 
     @staticmethod
     def make_request(verb, url, data):
-        r = None
         if verb == 'GET':
-            r = requests.get(url, params=data)
+            return requests.get(url, params=data)
         if verb == 'POST':
-            r = requests.post(url, data=data)
-        return r
+            return requests.post(url, data=data)
 
     def get_signature(self, verb, path, params):
         secret = self.SECRET_KEY.encode()

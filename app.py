@@ -1,6 +1,7 @@
 from chalice import Chalice
 import json
-from chalicelib.advaerbot.processing import BotProcessing
+from chalicelib.telegrambot.processing import BotProcessing
+
 
 app = Chalice(app_name='advaerbot')
 app.debug = True
@@ -11,4 +12,5 @@ def index():
     processing = BotProcessing()
     data = app.current_request.json_body
     app.log.debug(json.dumps(data))
-    return processing.process(data)
+    response = processing.process(data)
+    return response
