@@ -103,7 +103,7 @@ class BotCommands:
 
     @staticmethod
     def default():
-        return "Oops... I don't know this command. Try again!"
+        return "Oops... I don't know this command. Try again or use /help"
 
 
 commands = BotCommands()
