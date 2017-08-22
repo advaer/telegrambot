@@ -3,8 +3,8 @@
     "api_handler_name": "advaerbot-dev",
     "api_handler_arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev",
     "lambda_functions": {
-      "advaerbot-dev-inform": {
-        "arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev-inform",
+      "advaerbot-dev-get_currency_rate": {
+        "arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev-get_currency_rate",
         "type": "scheduled_event"
       }
     },

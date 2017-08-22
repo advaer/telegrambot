@@ -1,1 +1,2 @@
 requests==2.18.4
+PyMySQL==0.7.11
