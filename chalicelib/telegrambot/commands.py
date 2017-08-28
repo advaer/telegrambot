@@ -39,56 +39,62 @@ class BotCommands:
         content = {
             'start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n\n"
                      "/help - use it for help (as you do it now).\n\n"
+            
+                     "<b>POLONIEX tickers:</b>\n\n"
+            
+                     "/btcusd - BTC/USD ticker\n"
+                     "/btceur - BTC/EUR ticker\n"
+                     "/btcuah - BTC/UAH ticker\n\n"
+            
+                     "/ethusd - ETH/USD ticker\n"
+                     "/etheur - ETH/EUR ticker\n"
+                     "/ethuah - ETH/UAH ticker\n\n"
+            
+                     "/ltcusd - LTC/USD ticker\n"
+                     "/ltceur - LTC/EUR ticker\n"
+                     "/ltcuah - LTC/UAH ticker\n\n"
+            
+                     "/bchusd - BCH/USD ticker\n"
+                     "/bcheur - BCH/EUR ticker\n"
+                     "/bchuah - BCH/UAH ticker\n\n"
+            
+                     "/xmrusd - XMR/USD ticker\n"
+                     "/xmreur - XMR/EUR ticker\n"
+                     "/xmruah - XMR/UAH ticker\n\n"
 
-                     "/btcusd - BTC/USD POLONIEX ticker\n"
-                     "/btceur - BTC/EUR POLONIEX ticker\n"
-                     "/btcuah - BTC/UAH POLONIEX ticker\n\n"
-            
-                     "/ethusd - ETH/USD POLONIEX ticker\n"
-                     "/etheur - ETH/EUR POLONIEX ticker\n"
-                     "/ethuah - ETH/UAH POLONIEX ticker\n\n"
-            
-                     "/ltcusd - LTC/USD POLONIEX ticker\n"
-                     "/ltceur - LTC/EUR POLONIEX ticker\n"
-                     "/ltcuah - LTC/UAH POLONIEX ticker\n\n"
-            
-                     "/bchusd - BCH/USD POLONIEX ticker\n"
-                     "/bcheur - BCH/EUR POLONIEX ticker\n"
-                     "/bchuah - BCH/UAH POLONIEX ticker\n\n"
-            
-                     "/xmrusd - XMR/USD POLONIEX ticker\n"
-                     "/xmreur - XMR/EUR POLONIEX ticker\n"
-                     "/xmruah - XMR/UAH POLONIEX ticker\n\n"
-
-                     "/chuck - get relaxed from crypto currency "
-                     "and get new fact about Chuck Norris :)\n",
+                     "<b>Need a Moment?</b>\n\n"
+                     "/chuck - relax from crypto currency "
+                     "and get a new fact about Chuck Norris :)\n",
 
             'help': "<b>Available commands:\n\n</b>"
             
                     "/start - use it to start interacting with me.\n\n"
 
-                    "/btcusd - BTC/USD POLONIEX ticker\n"
-                    "/btceur - BTC/EUR POLONIEX ticker\n"
-                    "/btcuah - BTC/UAH POLONIEX ticker\n\n"
-                    
-                    "/ethusd - ETH/USD POLONIEX ticker\n"
-                    "/etheur - ETH/EUR POLONIEX ticker\n"
-                    "/ethuah - ETH/UAH POLONIEX ticker\n\n"
-                    
-                    "/ltcusd - LTC/USD POLONIEX ticker\n"
-                    "/ltceur - LTC/EUR POLONIEX ticker\n"
-                    "/ltcuah - LTC/UAH POLONIEX ticker\n\n"
-                    
-                    "/bchusd - BCH/USD POLONIEX ticker\n"
-                    "/bcheur - BCH/EUR POLONIEX ticker\n"
-                    "/bchuah - BCH/UAH POLONIEX ticker\n\n"
-                    
-                    "/xmrusd - XMR/USD POLONIEX ticker\n"
-                    "/xmreur - XMR/EUR POLONIEX ticker\n"
-                    "/xmruah - XMR/UAH POLONIEX ticker\n\n"
+                    "<b>POLONIEX tickers:</b>\n\n"
+            
+                     "/btcusd - BTC/USD ticker\n"
+                     "/btceur - BTC/EUR ticker\n"
+                     "/btcuah - BTC/UAH ticker\n\n"
+            
+                     "/ethusd - ETH/USD ticker\n"
+                     "/etheur - ETH/EUR ticker\n"
+                     "/ethuah - ETH/UAH ticker\n\n"
+            
+                     "/ltcusd - LTC/USD ticker\n"
+                     "/ltceur - LTC/EUR ticker\n"
+                     "/ltcuah - LTC/UAH ticker\n\n"
+            
+                     "/bchusd - BCH/USD ticker\n"
+                     "/bcheur - BCH/EUR ticker\n"
+                     "/bchuah - BCH/UAH ticker\n\n"
+            
+                     "/xmrusd - XMR/USD ticker\n"
+                     "/xmreur - XMR/EUR ticker\n"
+                     "/xmruah - XMR/UAH ticker\n\n"
 
-                    "/chuck - get relaxed from Crypto and "
-                    "get a new fact about Chuck Norris :)\n"
+                     "<b>Need a Moment?</b>\n\n"
+                     "/chuck - relax from crypto currency "
+                     "and get a new fact about Chuck Norris :)\n",
         }
         return content.get(key)
 
