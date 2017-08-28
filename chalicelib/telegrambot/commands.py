@@ -151,7 +151,7 @@ class BotCommands:
             'highest_bid': ticker.highest_bid * currency_rate,
             'last': ticker.last * currency_rate,
             'lowest_24h': ticker.lowest_24h * currency_rate,
-            'highest_24h': ticker.lowest_24h * currency_rate,
+            'highest_24h': ticker.highest_24h * currency_rate,
             'quote_volume': ticker.quote_volume,
             'base_volume': ticker.base_volume * currency_rate,
         }
@@ -159,7 +159,7 @@ class BotCommands:
         response_template = {
             'content': "<b>{0}/{1} POLONIEX</b>.\n"
                        "<b>Name:</b> {currency_name}\n"
-                        "<b>Time:</b> UTC {created_at}\n\n"
+                       "<b>Time:</b> UTC {created_at}\n\n"
                        "<b>Lowest Ask:</b> {lowest_ask:.2f} {1}\n"
                        "<b>Highest Bid:</b> {highest_bid:.2f} {1}\n"
                        "<b>Last deal:</b> {last:.2f} {1}\n"
