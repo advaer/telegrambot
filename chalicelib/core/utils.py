@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from chalicelib.poloniex.utils import get_ticker as get_poloniex_ticker
-
+from chalicelib.services.poloniex.utils import get_ticker as get_poloniex_ticker
 from .client import api_call
 
 
