@@ -10,7 +10,6 @@ def send_html_message(**kwargs):
 
 def poloniex_converter(data, base):
     ticker = get_poloniex_ticker(data, base)
-    now = datetime.now()
     return {
         'exchange': 'poloniex',
         'base': base,
@@ -24,7 +23,6 @@ def poloniex_converter(data, base):
         'is_frozen': ticker['isFrozen'],
         'highest_24h': ticker['high24hr'],
         'lowest_24h': ticker['low24hr'],
-        'created_at': now
     }
 
 
@@ -41,7 +39,7 @@ def convert_ticker_to_db(data, exchange, base):
 
 def convert_currency_to_db(data, counter):
     rate = data['quotes'][f'USD{counter}']
-    created_at = datetime.fromtimestamp(data['timestamp'])
+    created_at = datetime.utcfromtimestamp(data['timestamp'])
     return {
         'base': 'USD',
         'counter': counter,

@@ -1,38 +1,59 @@
-import functools
+from functools import partial
 
 import requests
 from sqlalchemy import desc
 
-from chalicelib.db.models import Currency, Ticker, session
+from chalicelib.db.models import Currency, Ticker, session, Chat
+from chalicelib.services.poloniex.constants import CURRENCY_NAMES
 
 
 class BotCommands:
     def __init__(self):
         self.known_commands = {
-            '/start': functools.partial(self.get_text, 'start'),
-            '/help': functools.partial(self.get_text, 'help'),
+            '/start': self.start,
+            '/help': partial(self.get_text, data=None, args=None, key='help'),
             '/chuck': self.get_chuck_quote,
 
-            '/btcusd': functools.partial(self.ticker, base='BTC', counter='USD'),
-            '/btceur': functools.partial(self.ticker, base='BTC', counter='EUR'),
-            '/btcuah': functools.partial(self.ticker, base='BTC', counter='UAH'),
+            '/btcusd': partial(self.ticker, data=None, args=None, base='BTC', counter='USD'),
+            '/btceur': partial(self.ticker, data=None, args=None, base='BTC', counter='EUR'),
+            '/btcuah': partial(self.ticker, data=None, args=None, base='BTC', counter='UAH'),
 
-            '/ethusd': functools.partial(self.ticker, base='ETH', counter='USD'),
-            '/etheur': functools.partial(self.ticker, base='ETH', counter='EUR'),
-            '/ethuah': functools.partial(self.ticker, base='ETH', counter='UAH'),
+            '/ethusd': partial(self.ticker, data=None, args=None, base='ETH', counter='USD'),
+            '/etheur': partial(self.ticker, data=None, args=None, base='ETH', counter='EUR'),
+            '/ethuah': partial(self.ticker, data=None, args=None, base='ETH', counter='UAH'),
 
-            '/ltcusd': functools.partial(self.ticker, base='LTC', counter='USD'),
-            '/ltceur': functools.partial(self.ticker, base='LTC', counter='EUR'),
-            '/ltcuah': functools.partial(self.ticker, base='LTC', counter='UAH'),
+            '/ltcusd': partial(self.ticker, data=None, args=None, base='LTC', counter='USD'),
+            '/ltceur': partial(self.ticker, data=None, args=None, base='LTC', counter='EUR'),
+            '/ltcuah': partial(self.ticker, data=None, args=None, base='LTC', counter='UAH'),
 
-            '/bchusd': functools.partial(self.ticker, base='BCH', counter='USD'),
-            '/bcheur': functools.partial(self.ticker, base='BCH', counter='EUR'),
-            '/bchuah': functools.partial(self.ticker, base='BCH', counter='UAH'),
+            '/bchusd': partial(self.ticker, data=None, args=None, base='BCH', counter='USD'),
+            '/bcheur': partial(self.ticker, data=None, args=None, base='BCH', counter='EUR'),
+            '/bchuah': partial(self.ticker, data=None, args=None, base='BCH', counter='UAH'),
 
-            '/xmrusd': functools.partial(self.ticker, base='XMR', counter='USD'),
-            '/xmreur': functools.partial(self.ticker, base='XMR', counter='EUR'),
-            '/xmruah': functools.partial(self.ticker, base='XMR', counter='UAH'),
+            '/xmrusd': partial(self.ticker, data=None, args=None, base='XMR', counter='USD'),
+            '/xmreur': partial(self.ticker, data=None, args=None, base='XMR', counter='EUR'),
+            '/xmruah': partial(self.ticker, data=None, args=None, base='XMR', counter='UAH'),
         }
+
+    def start(self, **kwargs):
+        chat = kwargs['data']['message']['chat']
+        chat_id = chat.get('id')
+        if not session.query(Chat).filter(Chat.chat_id == chat_id).count():
+            session.add(Chat(
+                chat_id=chat_id,
+                chat_type=chat.get('type'),
+                title=chat.get('title'),
+                username=chat.get('username'),
+                first_name=chat.get('first_name'),
+                last_name=chat.get('last_name'),
+                all_members_are_administrators=chat.get('all_members_are_administrators'),
+                description=chat.get('description'),
+                invite_link=chat.get('invite_link'),
+                created_at=chat.get('created_at'),
+            ))
+            session.commit()
+        text = self.get_text('start')
+        return text
 
     @staticmethod
     def get_text(key):
@@ -104,7 +125,7 @@ class BotCommands:
         return quote.json().get('value')
 
     @staticmethod
-    def ticker(base, counter):
+    def ticker(base, counter, **kwargs):
 
         if counter == 'USD':
             currency_rate = 1
@@ -125,6 +146,7 @@ class BotCommands:
 
         ticker_data = {
             'created_at': ticker.created_at,
+            'currency_name': CURRENCY_NAMES.get(base),
             'lowest_ask': ticker.lowest_ask * currency_rate,
             'highest_bid': ticker.highest_bid * currency_rate,
             'last': ticker.last * currency_rate,
@@ -136,7 +158,8 @@ class BotCommands:
 
         response_template = {
             'content': "<b>{0}/{1} POLONIEX</b>.\n"
-                       "<b>Time:</b> UTC {created_at}\n\n"
+                       "<b>Name:</b> {currency_name}\n"
+                        "<b>Time:</b> UTC {created_at}\n\n"
                        "<b>Lowest Ask:</b> {lowest_ask:.2f} {1}\n"
                        "<b>Highest Bid:</b> {highest_bid:.2f} {1}\n"
                        "<b>Last deal:</b> {last:.2f} {1}\n"

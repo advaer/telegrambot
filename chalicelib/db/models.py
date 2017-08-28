@@ -5,6 +5,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from chalicelib.conf import settings
+import datetime
+
 
 pymysql.install_as_MySQLdb()
 
@@ -22,10 +24,10 @@ class Currency(Base):
     base = Column(String(3), index=True)
     counter = Column(String(3), index=True)
     last = Column(Float(precision=6))
-    created_at = Column(DateTime(), index=True)
+    created_at = Column(DateTime(), default=datetime.datetime.utcnow, index=True)
 
     def __repr__(self):
-        return f"<Currency: {self.base}/{self.counter} - {self.rate}>"
+        return f"<Currency: {self.base}/{self.counter} - {self.last}>"
 
 
 class Ticker(Base):
@@ -44,9 +46,29 @@ class Ticker(Base):
     is_frozen = Column(Boolean)
     highest_24h = Column(Float(precision=8))
     lowest_24h = Column(Float(precision=8))
-    created_at = Column(DateTime(), index=True)
+    created_at = Column(DateTime(), default=datetime.datetime.utcnow, index=True)
 
     def __repr__(self):
-        return f"<CurrencyRate: {self.base}/{self.counter} - {self.last}>"
+        return f"<Ticker: {self.base}/{self.counter} - {self.last}>"
+
+
+class Chat(Base):
+    __tablename__ = 'chats'
+
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, unique=True)
+    chat_type = Column(String(64))
+    title = Column(String(128))
+    username = Column(String(128))
+    first_name = Column(String(128))
+    last_name = Column(String(128))
+    all_members_are_administrators = Column(Boolean)
+    description = Column(String(128))
+    invite_link = Column(String(128))
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    def __repr__(self):
+        return f"<Chat: {self.chat_id}/{self.first_name}{self.last_name}/{self.username}>"
+
 
 Base.metadata.create_all(engine)
