@@ -1,5 +1,5 @@
-from .utils import send_html_message
 from .commands import BotCommands
+from .utils import send_html_message
 
 
 class BotProcessing(BotCommands):

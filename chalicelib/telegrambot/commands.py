@@ -3,13 +3,7 @@ import functools
 import requests
 from sqlalchemy import desc
 
-from chalicelib.db.models import CurrencyRate, session
-from chalicelib.kunatrade.utils import get_ticker
-
-kuna_markets = {
-    'btcuah': 'BTC/UAH',
-    'ethuah': 'ETH/UAH'
-}
+from chalicelib.db.models import Currency, Ticker, session
 
 
 class BotCommands:
@@ -18,12 +12,26 @@ class BotCommands:
             '/start': functools.partial(self.get_text, 'start'),
             '/help': functools.partial(self.get_text, 'help'),
             '/chuck': self.get_chuck_quote,
-            '/btcuah': functools.partial(self.ticker, market='btcuah', currency='UAH'),
-            '/btcusd': functools.partial(self.ticker, market='btcuah', currency='USD'),
-            '/btceur': functools.partial(self.ticker, market='btcuah', currency='EUR'),
-            '/ethuah': functools.partial(self.ticker, market='ethuah', currency='UAH'),
-            '/ethusd': functools.partial(self.ticker, market='ethuah', currency='USD'),
-            '/etheur': functools.partial(self.ticker, market='ethuah', currency='EUR'),
+
+            '/btcusd': functools.partial(self.ticker, base='BTC', counter='USD'),
+            '/btceur': functools.partial(self.ticker, base='BTC', counter='EUR'),
+            '/btcuah': functools.partial(self.ticker, base='BTC', counter='UAH'),
+
+            '/ethusd': functools.partial(self.ticker, base='ETH', counter='USD'),
+            '/etheur': functools.partial(self.ticker, base='ETH', counter='EUR'),
+            '/ethuah': functools.partial(self.ticker, base='ETH', counter='UAH'),
+
+            '/ltcusd': functools.partial(self.ticker, base='LTC', counter='USD'),
+            '/ltceur': functools.partial(self.ticker, base='LTC', counter='EUR'),
+            '/ltcuah': functools.partial(self.ticker, base='LTC', counter='UAH'),
+
+            '/bchusd': functools.partial(self.ticker, base='BCH', counter='USD'),
+            '/bcheur': functools.partial(self.ticker, base='BCH', counter='EUR'),
+            '/bchuah': functools.partial(self.ticker, base='BCH', counter='UAH'),
+
+            '/xmrusd': functools.partial(self.ticker, base='XMR', counter='USD'),
+            '/xmreur': functools.partial(self.ticker, base='XMR', counter='EUR'),
+            '/xmruah': functools.partial(self.ticker, base='XMR', counter='UAH'),
         }
 
     @staticmethod
@@ -32,26 +40,52 @@ class BotCommands:
             'start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n\n"
                      "/help - use it for help (as you do it now).\n\n"
 
-                     "/btcuah - KUNA BTC/UAH ticker\n"
-                     "/btcusd - KUNA BTC/USD ticker\n"
-                     "/btceur - KUNA BTC/EUR ticker\n\n"
-                     "/ethuah - KUNA ETH/UAH ticker\n"
-                     "/ethusd - KUNA ETH/USD ticker\n"
-                     "/etheur - KUNA ETH/EUR ticker\n\n"
+                     "/btcusd - BTC/USD POLONIEX ticker\n"
+                     "/btceur - BTC/EUR POLONIEX ticker\n"
+                     "/btcuah - BTC/UAH POLONIEX ticker\n\n"
+            
+                     "/ethusd - ETH/USD POLONIEX ticker\n"
+                     "/etheur - ETH/EUR POLONIEX ticker\n"
+                     "/ethuah - ETH/UAH POLONIEX ticker\n\n"
+            
+                     "/ltcusd - LTC/USD POLONIEX ticker\n"
+                     "/ltceur - LTC/EUR POLONIEX ticker\n"
+                     "/ltcuah - LTC/UAH POLONIEX ticker\n\n"
+            
+                     "/bchusd - BCH/USD POLONIEX ticker\n"
+                     "/bcheur - BCH/EUR POLONIEX ticker\n"
+                     "/bchuah - BCH/UAH POLONIEX ticker\n\n"
+            
+                     "/xmrusd - XMR/USD POLONIEX ticker\n"
+                     "/xmreur - XMR/EUR POLONIEX ticker\n"
+                     "/xmruah - XMR/UAH POLONIEX ticker\n\n"
 
                      "/chuck - get relaxed from crypto currency "
                      "and get new fact about Chuck Norris :)\n",
 
             'help': "<b>Available commands:\n\n</b>"
-                    "/start - use it to start interacting with me.\n"
-                    "/help - use it for help (as you do it now).\n\n"
+            
+                    "/start - use it to start interacting with me.\n\n"
 
-                    "/btcuah - KUNA BTC/UAH ticker\n"
-                    "/btcusd - KUNA BTC/USD ticker\n"
-                    "/btceur - KUNA BTC/EUR ticker\n\n"
-                    "/ethuah - KUNA ETH/UAH ticker\n"
-                    "/ethusd - KUNA ETH/USD ticker\n"
-                    "/etheur - KUNA ETH/EUR ticker\n\n"
+                    "/btcusd - BTC/USD POLONIEX ticker\n"
+                    "/btceur - BTC/EUR POLONIEX ticker\n"
+                    "/btcuah - BTC/UAH POLONIEX ticker\n\n"
+                    
+                    "/ethusd - ETH/USD POLONIEX ticker\n"
+                    "/etheur - ETH/EUR POLONIEX ticker\n"
+                    "/ethuah - ETH/UAH POLONIEX ticker\n\n"
+                    
+                    "/ltcusd - LTC/USD POLONIEX ticker\n"
+                    "/ltceur - LTC/EUR POLONIEX ticker\n"
+                    "/ltcuah - LTC/UAH POLONIEX ticker\n\n"
+                    
+                    "/bchusd - BCH/USD POLONIEX ticker\n"
+                    "/bcheur - BCH/EUR POLONIEX ticker\n"
+                    "/bchuah - BCH/UAH POLONIEX ticker\n\n"
+                    
+                    "/xmrusd - XMR/USD POLONIEX ticker\n"
+                    "/xmreur - XMR/EUR POLONIEX ticker\n"
+                    "/xmruah - XMR/UAH POLONIEX ticker\n\n"
 
                     "/chuck - get relaxed from Crypto and "
                     "get a new fact about Chuck Norris :)\n"
@@ -64,42 +98,48 @@ class BotCommands:
         return quote.json().get('value')
 
     @staticmethod
-    def ticker(market, currency):
+    def ticker(base, counter):
 
-        if currency == 'UAH':
+        if counter == 'USD':
             currency_rate = 1
         else:
             currency_rate, = session.query(
-                CurrencyRate.rate
+                Currency.last
             ).filter(
-                CurrencyRate.base_currency == currency, CurrencyRate.counter_currency == 'UAH'
+                Currency.base == 'USD', Currency.counter == counter
             ).order_by(
-                desc(CurrencyRate.created_at)).first()
+                desc(Currency.created_at)).first()
 
-        data = get_ticker(market)
-        market_buy, market_sell = kuna_markets.get(market).split('/')
+        ticker = session.query(
+            Ticker
+        ).filter(
+            Ticker.base == base, Ticker.counter == 'USD'
+        ).order_by(
+            desc(Ticker.created_at)).first()
 
-        ticker = data.get('ticker')
         ticker_data = {
-            'buy': float(ticker.get('buy'))/currency_rate,
-            'sell': float(ticker.get('sell'))/currency_rate,
-            'low': float(ticker.get('low'))/currency_rate,
-            'high': float(ticker.get('high'))/currency_rate,
-            'last': float(ticker.get('last'))/currency_rate,
-            'vol': float(ticker.get('vol')),
-            'price': float(ticker.get('price'))/currency_rate,
+            'created_at': ticker.created_at,
+            'lowest_ask': ticker.lowest_ask * currency_rate,
+            'highest_bid': ticker.highest_bid * currency_rate,
+            'last': ticker.last * currency_rate,
+            'lowest_24h': ticker.lowest_24h * currency_rate,
+            'highest_24h': ticker.lowest_24h * currency_rate,
+            'quote_volume': ticker.quote_volume,
+            'base_volume': ticker.base_volume * currency_rate,
         }
+
         response_template = {
-            'content': "<b>Market: {0}/{1} KUNA Exchange</b>.\n\n"
-                       "<b>Buy:</b> {buy:.2f} {1}\n"
-                       "<b>Sell</b>: {sell:.2f} {1}\n"
-                       "<b>Last deal price:</b> {last:.2f} {1}\n"
-                       "<b>Lowest in 24h:</b> {low:.2f} {1}\n"
-                       "<b>Highest in 24h:</b> {high:.2f} {1}\n"
-                       "<b>Trading vol. 24h:</b> {vol} {0}\n"
-                       "<b>Trading vol. 24h:</b> {price:.2f} {1}"
+            'content': "<b>{0}/{1} POLONIEX</b>.\n"
+                       "<b>Timestamp:</b> {created_at}\n\n"
+                       "<b>Lowest Ask:</b> {lowest_ask:.2f} {1}\n"
+                       "<b>Highest Bid:</b> {highest_bid:.2f} {1}\n"
+                       "<b>Last deal:</b> {last:.2f} {1}\n"
+                       "<b>Lowest in 24h:</b> {lowest_24h:.2f} {1}\n"
+                       "<b>Highest in 24h:</b> {highest_24h:.2f} {1}\n"
+                       "<b>Trading vol. 24h:</b> {quote_volume:.2f} {0}\n"
+                       "<b>Trading vol. 24h:</b> {base_volume:.2f} {1}\n"
         }
-        return response_template.get('content').format(market_buy, currency, **ticker_data)
+        return response_template.get('content').format(base, counter, **ticker_data)
 
     @staticmethod
     def default():
