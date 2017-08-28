@@ -1,5 +1,6 @@
-from chalicelib.conf import settings
 import requests
+
+from chalicelib.conf import settings
 
 
 class TelegramBotClient:

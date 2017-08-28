@@ -3,7 +3,7 @@ from functools import partial
 import requests
 from sqlalchemy import desc
 
-from chalicelib.db.models import Currency, Ticker, session, Chat
+from chalicelib.db.models import Chat, Currency, Ticker, session
 from chalicelib.services.poloniex.constants import CURRENCY_NAMES
 
 

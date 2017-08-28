@@ -1,3 +1,5 @@
+import datetime
+
 import pymysql
 from sqlalchemy import (Boolean, Column, DateTime, Float, Integer, String,
                         create_engine)
@@ -5,8 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from chalicelib.conf import settings
-import datetime
-
 
 pymysql.install_as_MySQLdb()
 
