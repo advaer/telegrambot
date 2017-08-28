@@ -136,7 +136,7 @@ class BotCommands:
 
         response_template = {
             'content': "<b>{0}/{1} POLONIEX</b>.\n"
-                       "<b>Timestamp:</b> {created_at}\n\n"
+                       "<b>Time:</b> UTC {created_at}\n\n"
                        "<b>Lowest Ask:</b> {lowest_ask:.2f} {1}\n"
                        "<b>Highest Bid:</b> {highest_bid:.2f} {1}\n"
                        "<b>Last deal:</b> {last:.2f} {1}\n"
