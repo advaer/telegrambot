@@ -1,10 +1,10 @@
 import datetime
 
 import pymysql
-from sqlalchemy import (Boolean, Column, DateTime, Float, Integer, String,
+from sqlalchemy import (Boolean, Column, DateTime, Float, ForeignKey, Integer, String,
                         create_engine)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 
 from chalicelib.conf import settings
 
@@ -70,5 +70,24 @@ class Chat(Base):
     def __repr__(self):
         return f"<Chat: {self.chat_id}/{self.first_name}{self.last_name}/{self.username}>"
 
+
+class Subscription(Base):
+    __tablename__ = 'subscriptions'
+
+    id = Column(Integer, primary_key=True)
+    chat_id = Column(Integer, ForeignKey('chats.id'))
+    base = Column(String(5))
+    counter = Column(String(5))
+    expression = Column(String(5))
+    value = Column(Float(precision=8))
+    is_active = Column(Boolean, index=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    chat = relationship("Chat", back_populates="subscriptions")
+
+    def __repr__(self):
+        return f"<Subscription: {self.base}/{self.counter} {self.expression} {self.value}>"
+
+Chat.subscriptions = relationship("Subscription", order_by=Subscription.id, back_populates="chat")
 
 Base.metadata.create_all(engine)

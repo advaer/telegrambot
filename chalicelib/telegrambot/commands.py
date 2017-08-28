@@ -13,6 +13,7 @@ class BotCommands:
             '/start': self.start,
             '/help': partial(self.get_text, data=None, args=None, key='help'),
             '/chuck': self.get_chuck_quote,
+            '/watch': self.watch,
 
             '/btcusd': partial(self.ticker, data=None, args=None, base='BTC', counter='USD'),
             '/btceur': partial(self.ticker, data=None, args=None, base='BTC', counter='EUR'),
@@ -33,9 +34,10 @@ class BotCommands:
             '/xmrusd': partial(self.ticker, data=None, args=None, base='XMR', counter='USD'),
             '/xmreur': partial(self.ticker, data=None, args=None, base='XMR', counter='EUR'),
             '/xmruah': partial(self.ticker, data=None, args=None, base='XMR', counter='UAH'),
+
         }
 
-    def start(self, **kwargs):
+    def start(self, *args, **kwargs):
         chat = kwargs['data']['message']['chat']
         chat_id = chat.get('id')
         if not session.query(Chat).filter(Chat.chat_id == chat_id).count():
@@ -56,7 +58,7 @@ class BotCommands:
         return text
 
     @staticmethod
-    def get_text(key):
+    def get_text(key, *args, **kwargs):
         content = {
             'start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n\n"
                      "/help - use it for help (as you do it now).\n\n"
@@ -120,12 +122,12 @@ class BotCommands:
         return content.get(key)
 
     @staticmethod
-    def get_chuck_quote():
+    def get_chuck_quote(*args, **kwargs):
         quote = requests.get('https://api.chucknorris.io/jokes/random')
         return quote.json().get('value')
 
     @staticmethod
-    def ticker(base, counter, **kwargs):
+    def ticker(base, counter, *args, **kwargs):
 
         if counter == 'USD':
             currency_rate = 1
@@ -170,8 +172,14 @@ class BotCommands:
         }
         return response_template.get('content').format(base, counter, **ticker_data)
 
+    def watch(self, *args, **kwargs):
+        print(args)
+        print(kwargs)
+        return "Watch started"
+
+
     @staticmethod
-    def default():
+    def default(*args, **kwargs):
         return "Oops... I don't know this command. Try again or use /help"
 
 
