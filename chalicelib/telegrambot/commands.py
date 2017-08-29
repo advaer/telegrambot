@@ -2,6 +2,7 @@ from functools import partial
 
 import requests
 from chalice import Chalice
+from sqlalchemy import desc
 
 from chalicelib.db.models import (
     Alert,
@@ -155,9 +156,14 @@ class BotCommands:
             )
         )
         session.commit()
-        return f"Alert <b>\"{base}/{counter} " \
-               f"{EXPRESSIONS[expression]['html']} {value}\"</b>" \
-               f" has been set successfully"
+
+        alert_id, = session.query(Alert.id).filter(
+            Alert.chat == chat
+        ).order_by(desc(Alert.created)).first()
+
+        return f"<b>STARTED</b>\n" \
+               f"Alert id: {alert_id}\n" \
+               f"{base}/{counter} {EXPRESSIONS[expression]['html']} {value}"
 
     @staticmethod
     def alerts(data, **kwargs):
@@ -196,7 +202,7 @@ class BotCommands:
             alert.is_active = False
             session.add(alert)
             session.commit()
-            return f"STOPPED!\n" \
+            return f"<b>STOPPED</b>\n" \
                    f"Alert id: {alert.id}\n" \
                    f"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
                    f"{float(alert.value)}\n\n"

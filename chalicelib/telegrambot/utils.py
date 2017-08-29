@@ -10,6 +10,7 @@ from chalicelib.db.models import (
 from chalicelib.services.poloniex.utils import data_converter as poloniex_data_converter
 
 from .client import api_call
+from .constants import MAIN_MENU
 
 
 def send_html_message(**kwargs):
@@ -17,65 +18,15 @@ def send_html_message(**kwargs):
 
 
 def get_text(key, **kwargs):
+
     content = {
-        'start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n\n"
-                 "/help - use it for help (as you do it now).\n\n"
+        'start': f"Hi! I am Telegram bot, developed by @advaer.\n"
+                 f"/help - use it for help\n"
+                 f"{MAIN_MENU}",
 
-                 "<b>POLONIEX tickers:</b>\n\n"
-
-                 "/btcusd - BTC/USD ticker\n"
-                 "/btceur - BTC/EUR ticker\n"
-                 "/btcuah - BTC/UAH ticker\n\n"
-
-                 "/ethusd - ETH/USD ticker\n"
-                 "/etheur - ETH/EUR ticker\n"
-                 "/ethuah - ETH/UAH ticker\n\n"
-
-                 "/ltcusd - LTC/USD ticker\n"
-                 "/ltceur - LTC/EUR ticker\n"
-                 "/ltcuah - LTC/UAH ticker\n\n"
-
-                 "/bchusd - BCH/USD ticker\n"
-                 "/bcheur - BCH/EUR ticker\n"
-                 "/bchuah - BCH/UAH ticker\n\n"
-
-                 "/xmrusd - XMR/USD ticker\n"
-                 "/xmreur - XMR/EUR ticker\n"
-                 "/xmruah - XMR/UAH ticker\n\n"
-
-                 "<b>Need a Moment?</b>\n\n"
-                 "/chuck - relax from crypto currency "
-                 "and get a new fact about Chuck Norris :)\n",
-
-        'help': "<b>Available commands:\n\n</b>"
-
-                "/start - use it to start interacting with me.\n\n"
-
-                "<b>POLONIEX tickers:</b>\n\n"
-
-                "/btcusd - BTC/USD ticker\n"
-                "/btceur - BTC/EUR ticker\n"
-                "/btcuah - BTC/UAH ticker\n\n"
-
-                "/ethusd - ETH/USD ticker\n"
-                "/etheur - ETH/EUR ticker\n"
-                "/ethuah - ETH/UAH ticker\n\n"
-
-                "/ltcusd - LTC/USD ticker\n"
-                "/ltceur - LTC/EUR ticker\n"
-                "/ltcuah - LTC/UAH ticker\n\n"
-
-                "/bchusd - BCH/USD ticker\n"
-                "/bcheur - BCH/EUR ticker\n"
-                "/bchuah - BCH/UAH ticker\n\n"
-
-                "/xmrusd - XMR/USD ticker\n"
-                "/xmreur - XMR/EUR ticker\n"
-                "/xmruah - XMR/UAH ticker\n\n"
-
-                "<b>Need a Moment?</b>\n\n"
-                "/chuck - relax from crypto currency "
-                "and get a new fact about Chuck Norris :)\n",
+        'help': f"<b>Available commands:\n</b>"
+                f"/start - use it to start interacting with me\n"
+                f"{MAIN_MENU}"
     }
     return content.get(key)
 

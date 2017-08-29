@@ -47,13 +47,12 @@ def get_tickers(exchange='poloniex'):
 def get_notification_content(ticker, alert):
     currency_rate = get_currency_rate(alert.counter)
 
-    return f"ALERT!\n" \
-           f"<b>\"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
-           f"{float(alert.value)}\"</b>\n" \
-           f"TICKER:\n" \
-           f"<b>{alert.base}/{alert.counter} POLONIEX</b>.\n" \
+    return f"<b>ALERT!</b>\n" \
+           f"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
+           f"{float(alert.value)}\n\n" \
+           f"<b>{alert.base}/{alert.counter} POLONIEX</b>\n" \
            f"<b>Name:</b> {CURRENCY_NAMES[alert.base]}\n" \
-           f"<b>Time:</b> UTC {ticker.created}\n\n" \
+           f"<b>Time:</b> UTC {ticker.created}\n" \
            f"<b>Last deal:</b> {ticker.last * currency_rate:.2f} {alert.counter}\n"
 
 
