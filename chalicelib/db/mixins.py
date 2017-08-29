@@ -1,5 +1,10 @@
 import datetime
-from sqlalchemy import Column, DateTime, Integer
+
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Integer,
+)
 
 
 class BaseMixin:

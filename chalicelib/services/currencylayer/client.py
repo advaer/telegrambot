@@ -15,4 +15,5 @@ class CurrencyLayerClient:
         response = requests.get(self.api_url, params=data)
         return response.json()
 
+
 client = CurrencyLayerClient()

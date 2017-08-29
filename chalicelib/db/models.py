@@ -1,15 +1,25 @@
 import pymysql
-from sqlalchemy import (Boolean, Column, ForeignKey, Integer, String, Numeric,
-                        create_engine)
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    create_engine,
+)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import (
+    relationship,
+    sessionmaker,
+)
 
 from chalicelib.conf import settings
 from chalicelib.db.mixins import BaseMixin
 
 pymysql.install_as_MySQLdb()
 
-engine = create_engine(settings.DATABASE_URL) #, echo=True)
+engine = create_engine(settings.DATABASE_URL, echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -79,6 +89,7 @@ class Alert(Base):
     def __repr__(self):
         return f"Alert {self.id}: {self.base}/{self.counter} {self.expression} {self.value}"
 
+
 Chat.alerts = relationship("Alert", order_by=Alert.id, back_populates="chat")
 
 
@@ -89,6 +100,8 @@ class Notification(Base):
 
     alert = relationship("Alert", back_populates="notifications")
 
+
 Alert.notifications = relationship("Notification", order_by=Notification.id, back_populates='alert')
+
 
 Base.metadata.create_all(engine)

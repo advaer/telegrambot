@@ -27,4 +27,5 @@ class PoloniexClient:
         response = self._make_request(api_method)
         return response.json()
 
+
 client = PoloniexClient()

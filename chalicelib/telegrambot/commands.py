@@ -1,19 +1,32 @@
 from functools import partial
 
 import requests
-from sqlalchemy import desc
+from chalice import Chalice
 
-from chalicelib.db.models import Alert, Chat, Currency, Ticker, session
+from chalicelib.db.models import (
+    Alert,
+    Chat,
+    session,
+)
 from chalicelib.services.poloniex.constants import CURRENCY_NAMES
 from chalicelib.telegrambot.constants import EXPRESSIONS
+
+from .utils import (
+    get_currency_rate,
+    get_latest_ticker,
+    get_text,
+)
+
+app = Chalice(app_name='advaerbot')
 
 
 class BotCommands:
     def __init__(self):
         self.known_commands = {
             '/start': self.start,
-            '/help': partial(self.get_text, data=None, args=None, key='help'),
+            '/help': partial(get_text, data=None, args=None, key='help'),
             '/chuck': self.get_chuck_quote,
+
             '/setalert': self.setalert,
             '/alerts': self.alerts,
             '/stopalert': self.stopalert,
@@ -37,13 +50,15 @@ class BotCommands:
             '/xmrusd': partial(self.ticker, data=None, args=None, base='XMR', counter='USD'),
             '/xmreur': partial(self.ticker, data=None, args=None, base='XMR', counter='EUR'),
             '/xmruah': partial(self.ticker, data=None, args=None, base='XMR', counter='UAH'),
-
         }
 
-    def start(self, *args, **kwargs):
-        chat = kwargs['data']['message']['chat']
+    @staticmethod
+    def start(data, **kwargs):
+        chat = data['message']['chat']
         chat_id = chat.get('id')
-        if not session.query(Chat).filter(Chat.telegram_chat_id == chat_id).count():
+        if not session.query(Chat).filter(
+                        Chat.telegram_chat_id == chat_id
+        ).count():
             session.add(Chat(
                 telegram_chat_id=chat_id,
                 chat_type=chat.get('type'),
@@ -51,103 +66,25 @@ class BotCommands:
                 username=chat.get('username'),
                 first_name=chat.get('first_name'),
                 last_name=chat.get('last_name'),
-                all_members_are_administrators=chat.get('all_members_are_administrators'),
+                all_members_are_administrators=chat.get(
+                    'all_members_are_administrators'
+                ),
                 description=chat.get('description'),
                 invite_link=chat.get('invite_link'),
                 created=chat.get('created'),
             ))
             session.commit()
-        text = self.get_text('start')
-        return text
+        return get_text('start')
 
     @staticmethod
-    def get_text(key, *args, **kwargs):
-        content = {
-            'start': "Hi! I am test Telegram bot, developed by <b>Rinat Advaer</b>.\n\n"
-                     "/help - use it for help (as you do it now).\n\n"
-            
-                     "<b>POLONIEX tickers:</b>\n\n"
-            
-                     "/btcusd - BTC/USD ticker\n"
-                     "/btceur - BTC/EUR ticker\n"
-                     "/btcuah - BTC/UAH ticker\n\n"
-            
-                     "/ethusd - ETH/USD ticker\n"
-                     "/etheur - ETH/EUR ticker\n"
-                     "/ethuah - ETH/UAH ticker\n\n"
-            
-                     "/ltcusd - LTC/USD ticker\n"
-                     "/ltceur - LTC/EUR ticker\n"
-                     "/ltcuah - LTC/UAH ticker\n\n"
-            
-                     "/bchusd - BCH/USD ticker\n"
-                     "/bcheur - BCH/EUR ticker\n"
-                     "/bchuah - BCH/UAH ticker\n\n"
-            
-                     "/xmrusd - XMR/USD ticker\n"
-                     "/xmreur - XMR/EUR ticker\n"
-                     "/xmruah - XMR/UAH ticker\n\n"
-
-                     "<b>Need a Moment?</b>\n\n"
-                     "/chuck - relax from crypto currency "
-                     "and get a new fact about Chuck Norris :)\n",
-
-            'help': "<b>Available commands:\n\n</b>"
-            
-                    "/start - use it to start interacting with me.\n\n"
-
-                    "<b>POLONIEX tickers:</b>\n\n"
-            
-                     "/btcusd - BTC/USD ticker\n"
-                     "/btceur - BTC/EUR ticker\n"
-                     "/btcuah - BTC/UAH ticker\n\n"
-            
-                     "/ethusd - ETH/USD ticker\n"
-                     "/etheur - ETH/EUR ticker\n"
-                     "/ethuah - ETH/UAH ticker\n\n"
-            
-                     "/ltcusd - LTC/USD ticker\n"
-                     "/ltceur - LTC/EUR ticker\n"
-                     "/ltcuah - LTC/UAH ticker\n\n"
-            
-                     "/bchusd - BCH/USD ticker\n"
-                     "/bcheur - BCH/EUR ticker\n"
-                     "/bchuah - BCH/UAH ticker\n\n"
-            
-                     "/xmrusd - XMR/USD ticker\n"
-                     "/xmreur - XMR/EUR ticker\n"
-                     "/xmruah - XMR/UAH ticker\n\n"
-
-                     "<b>Need a Moment?</b>\n\n"
-                     "/chuck - relax from crypto currency "
-                     "and get a new fact about Chuck Norris :)\n",
-        }
-        return content.get(key)
-
-    @staticmethod
-    def get_chuck_quote(*args, **kwargs):
+    def get_chuck_quote(**kwargs):
         quote = requests.get('https://api.chucknorris.io/jokes/random')
         return quote.json().get('value')
 
     @staticmethod
-    def ticker(base, counter, *args, **kwargs):
-
-        if counter == 'USD':
-            currency_rate = 1
-        else:
-            currency_rate, = session.query(
-                Currency.last
-            ).filter(
-                Currency.base == 'USD', Currency.counter == counter
-            ).order_by(
-                desc(Currency.created)).first()
-
-        ticker = session.query(
-            Ticker
-        ).filter(
-            Ticker.base == base, Ticker.counter == 'USD'
-        ).order_by(
-            desc(Ticker.created)).first()
+    def ticker(base, counter, **kwargs):
+        currency_rate = get_currency_rate(counter)
+        ticker = get_latest_ticker(base)
 
         ticker_data = {
             'created': ticker.created,
@@ -173,15 +110,20 @@ class BotCommands:
                        "<b>Trading vol. 24h:</b> {quote_volume} {0}\n"
                        "<b>Trading vol. 24h:</b> {base_volume:.2f} {1}\n"
         }
-        return response_template.get('content').format(base, counter, **ticker_data)
+        return response_template.get('content').format(
+            base, counter, **ticker_data
+        )
 
-    def setalert(self, data, args):
+    @staticmethod
+    def setalert(data, args):
 
         if not args:
             return "Please provide arguments"
 
         chat_id = data['message']['chat']['id']
-        chat = session.query(Chat).filter(Chat.telegram_chat_id == chat_id).one_or_none()
+        chat = session.query(Chat).filter(
+            Chat.telegram_chat_id == chat_id
+        ).one_or_none()
         try:
             base, counter, expression, value = args
         except ValueError:
@@ -189,11 +131,11 @@ class BotCommands:
 
         base = base.upper()
         if base not in CURRENCY_NAMES.keys():
-            return f"Base currency is incorect. Allowed: {CURRENCY_NAMES.keys()}"
+            return f"Base currency is incorrect. Allowed: {CURRENCY_NAMES.keys()}"
 
         counter = counter.upper()
         if counter not in ['USD', 'EUR', 'UAH']:
-            return f"Counter currency is incorect. Allowed: ['USD', 'EUR', 'UAH']"
+            return f"Counter currency is incorrect. Allowed: ['USD', 'EUR', 'UAH']"
 
         if expression not in EXPRESSIONS.keys():
             return f"Expression is incorrect."
@@ -213,15 +155,27 @@ class BotCommands:
             )
         )
         session.commit()
-        return f"Alert <b>\"{base}/{counter} {EXPRESSIONS[expression]['html']} {value}\"</b>" \
+        return f"Alert <b>\"{base}/{counter} " \
+               f"{EXPRESSIONS[expression]['html']} {value}\"</b>" \
                f" has been set successfully"
 
-    def alerts(self, data, args):
+    @staticmethod
+    def alerts(data, **kwargs):
+        app.log.debug('Logs in chalicelib works well')
         telegram_chat_id = data['message']['chat']['id']
-        chat = session.query(Chat).filter(Chat.telegram_chat_id == telegram_chat_id).one()
-        alerts = session.query(Alert).filter(Alert.chat == chat, Alert.is_active == 1).all()
+
+        chat = session.query(Chat).filter(
+            Chat.telegram_chat_id == telegram_chat_id
+        ).one()
+
+        alerts = session.query(Alert).filter(
+            Alert.chat == chat,
+            Alert.is_active == 1
+        ).all()
+
         if not alerts:
             return "There are no active alerts. Use /setalert to create"
+
         content = "ACTIVE ALERTS:\n\n"
         for alert in alerts:
             content += f"<b>Alert id: {alert.id}</b>\n" \
@@ -229,9 +183,16 @@ class BotCommands:
                        f"{float(alert.value)}\n\n"
         return content
 
-    def stopalert(self, data, args):
+    @staticmethod
+    def stopalert(data, args):
+
+        if not args:
+            return "Please provide arguments"
+
         alert = session.query(Alert).filter(Alert.id == args[0]).one_or_none()
-        if alert:
+
+        if alert and alert.chat.telegram_chat_id \
+                == data['message']['chat']['id']:
             alert.is_active = False
             session.add(alert)
             session.commit()
@@ -240,10 +201,11 @@ class BotCommands:
                    f"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
                    f"{float(alert.value)}\n\n"
         else:
-            return "Incorrect alert ID. To list all active alerts with IDs use /alerts"
+            return "Incorrect alert ID. " \
+                   "To list all active alerts with IDs use /alerts"
 
     @staticmethod
-    def default(*args, **kwargs):
+    def default(**kwargs):
         return "Oops... I don't know this command. Try again or use /help"
 
 

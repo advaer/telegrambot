@@ -1,13 +1,25 @@
-from chalicelib.db.models import Currency, Ticker, session, Alert, Notification
-from chalicelib.services.currencylayer.utils import \
-    api_call as currency_api_call
-from chalicelib.services.poloniex.utils import api_call as poloniex_api_call
-from sqlalchemy import desc
-from .utils import convert_currency_to_db, convert_ticker_to_db, compare
-from chalicelib.telegrambot.constants import EXPRESSIONS
-from chalicelib.services.poloniex.constants import CURRENCY_NAMES
 import datetime
-from .utils import send_html_message
+
+from chalicelib.db.models import (
+    Alert,
+    Currency,
+    Notification,
+    Ticker,
+    session,
+)
+from chalicelib.services.currencylayer.utils import api_call as currency_api_call
+from chalicelib.services.poloniex.constants import CURRENCY_NAMES
+from chalicelib.services.poloniex.utils import api_call as poloniex_api_call
+from chalicelib.telegrambot.constants import EXPRESSIONS
+
+from .utils import (
+    compare,
+    convert_currency_to_db,
+    convert_ticker_to_db,
+    get_currency_rate,
+    get_latest_ticker,
+    send_html_message,
+)
 
 
 def get_currencies():
@@ -33,19 +45,11 @@ def get_tickers(exchange='poloniex'):
 
 
 def get_notification_content(ticker, alert):
-    if alert.counter == 'USD':
-        currency_rate = 1
-    else:
-        currency_rate, = session.query(
-            Currency.last
-        ).filter(
-            Currency.base == 'USD', Currency.counter == alert.counter
-        ).order_by(
-            desc(Currency.created)).first()
+    currency_rate = get_currency_rate(alert.counter)
 
     return f"ALERT!\n" \
            f"<b>\"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
-           f"{float(alert.value)}\"</b>\n\n" \
+           f"{float(alert.value)}\"</b>\n" \
            f"TICKER:\n" \
            f"<b>{alert.base}/{alert.counter} POLONIEX</b>.\n" \
            f"<b>Name:</b> {CURRENCY_NAMES[alert.base]}\n" \
@@ -54,30 +58,11 @@ def get_notification_content(ticker, alert):
 
 
 def process_single_alert(alert):
+    currency_rate = get_currency_rate(alert.counter)
+    ticker = get_latest_ticker(alert.base)
 
-    if alert.counter == 'USD':
-        currency_rate = 1
-    else:
-        currency_rate, = session.query(
-            Currency.last
-        ).filter(
-            Currency.base == 'USD', Currency.counter == alert.counter
-        ).order_by(
-            desc(Currency.created)).first()
-
-    ticker = session.query(
-        Ticker
-    ).filter(
-        Ticker.base == alert.base,
-        Ticker.counter == 'USD'
-    ).order_by(
-        desc(Ticker.created)
-    ).first()
-
-    if compare(ticker.last * currency_rate, alert.value) in EXPRESSIONS[alert.expression]['result']:
-        notifications = session.query(
-            Notification
-        ).filter(
+    if compare(ticker.last*currency_rate, alert.value) in EXPRESSIONS[alert.expression]['result']:
+        notifications = session.query(Notification).filter(
             Notification.alert_id == alert.id,
             Notification.created >= datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
         ).count()

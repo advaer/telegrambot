@@ -1,9 +1,16 @@
 import json
 
-from chalice import Chalice, Rate
+from chalice import (
+    Chalice,
+    Rate,
+)
 
 from chalicelib.telegrambot.processing import BotProcessing
-from chalicelib.telegrambot.tasks import get_currencies, get_tickers, process_all_alerts
+from chalicelib.telegrambot.tasks import (
+    get_currencies,
+    get_tickers,
+    process_all_alerts,
+)
 
 app = Chalice(app_name='advaerbot')
 app.debug = True

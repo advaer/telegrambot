@@ -2,9 +2,9 @@ from .commands import BotCommands
 from .utils import send_html_message
 
 
-class BotProcessing(BotCommands):
+class BotProcessing:
     def __init__(self):
-        super().__init__()
+        self.commands = BotCommands()
         self.update_types_processors = {
             'message': self._process_message,
         }
@@ -16,7 +16,7 @@ class BotProcessing(BotCommands):
 
     def _parse_command(self, request):
         request = request.split()
-        command = self.known_commands.get(request[0].lower(), self.default)
+        command = self.commands.known_commands.get(request[0].lower(), self.commands.default)
         args = request[1:]
 
         return command, args
