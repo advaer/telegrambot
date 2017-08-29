@@ -41,10 +41,10 @@ def convert_ticker_to_db(data, exchange, base):
 
 def convert_currency_to_db(data, counter):
     rate = data['quotes'][f'USD{counter}']
-    created_at = datetime.utcfromtimestamp(data['timestamp'])
+    created = datetime.utcfromtimestamp(data['timestamp'])
     return {
         'base': 'USD',
         'counter': counter,
         'last': rate,
-        'created_at': created_at
+        'created': created
     }

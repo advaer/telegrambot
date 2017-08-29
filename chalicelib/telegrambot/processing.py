@@ -26,7 +26,7 @@ class BotProcessing(BotCommands):
         request = message.get('text')
         chat_id = message.get('chat').get('id')
         command, args = self._parse_command(request)
-        response_text = command(data=data, args=args)
+        response_text = command(args=args, data=data)
         response = send_html_message(chat_id=chat_id, content=response_text)
         return response.json()
 
