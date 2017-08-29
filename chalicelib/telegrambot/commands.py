@@ -119,7 +119,7 @@ class BotCommands:
     def setalert(data, args):
 
         if not args:
-            return "Please provide arguments"
+            return "Please provide arguments: btc eur &gt; 1234.56 /help"
 
         chat_id = data['message']['chat']['id']
         chat = session.query(Chat).filter(
@@ -128,23 +128,23 @@ class BotCommands:
         try:
             base, counter, expression, value = args
         except ValueError:
-            return "Incorrect args.\nExample: <b>BTC UAH > 123456</b>"
+            return "Incorrect args. Allowed: btc usd &gt; 123456 /help"
 
         base = base.upper()
         if base not in CURRENCY_NAMES.keys():
-            return f"Base currency is incorrect. Allowed: {CURRENCY_NAMES.keys()}"
+            return f"Base currency is incorrect. Allowed: btc, eth, ltc, bch, xmr /help"
 
         counter = counter.upper()
         if counter not in ['USD', 'EUR', 'UAH']:
-            return f"Counter currency is incorrect. Allowed: ['USD', 'EUR', 'UAH']"
+            return f"Counter currency is incorrect. Allowed: usd, eur, uah \help"
 
         if expression not in EXPRESSIONS.keys():
-            return f"Expression is incorrect."
+            return f"Expression is incorrect. Allowed: &gt;, &lt;, =, &gt;=, &lt;= /help"
 
         try:
             value = float(value)
         except ValueError:
-            return f"Value is incorrect. It should be 12345 or 123.45"
+            return f"Value is incorrect. It should be 12345 or 123.45 /help"
 
         session.add(
             Alert(
@@ -193,7 +193,7 @@ class BotCommands:
     def stopalert(data, args):
 
         if not args:
-            return "Please provide arguments"
+            return "Please provide alert ID argument /help"
 
         alert = session.query(Alert).filter(Alert.id == args[0]).one_or_none()
 
