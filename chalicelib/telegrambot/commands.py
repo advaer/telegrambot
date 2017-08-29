@@ -144,7 +144,7 @@ class BotCommands:
         try:
             value = float(value)
         except ValueError:
-            return f"Value is incorrect. It should be 12345 or 123.45 /help"
+            return f"Value is incorrect. Allowed: 12345 or 123.45 /help"
 
         session.add(
             Alert(
