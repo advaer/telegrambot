@@ -3,7 +3,7 @@ import json
 from chalice import Chalice, Rate
 
 from chalicelib.telegrambot.processing import BotProcessing
-from chalicelib.telegrambot.tasks import get_currencies, get_tickers
+from chalicelib.telegrambot.tasks import get_currencies, get_tickers, process_all_alerts
 
 app = Chalice(app_name='advaerbot')
 app.debug = True
@@ -26,3 +26,8 @@ def get_currencies_rate(event):
 @app.schedule(Rate(10, unit=Rate.MINUTES))
 def get_tickers_info(event):
     get_tickers()
+
+
+@app.schedule(Rate(1, unit=Rate.MINUTES))
+def send_alerts(event):
+    process_all_alerts()

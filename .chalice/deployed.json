@@ -10,6 +10,10 @@
       "advaerbot-dev-get_tickers_info": {
         "arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev-get_tickers_info",
         "type": "scheduled_event"
+      },
+      "advaerbot-dev-send_alerts": {
+        "arn": "arn:aws:lambda:eu-central-1:394121792517:function:advaerbot-dev-send_alerts",
+        "type": "scheduled_event"
       }
     },
     "backend": "api",

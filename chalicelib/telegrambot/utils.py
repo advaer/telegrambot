@@ -48,3 +48,10 @@ def convert_currency_to_db(data, counter):
         'last': rate,
         'created': created
     }
+
+
+def compare(x, y):
+    if x == y:
+        return 0
+    return int((x - y)/abs(x - y))
+

@@ -9,7 +9,7 @@ from chalicelib.db.mixins import BaseMixin
 
 pymysql.install_as_MySQLdb()
 
-engine = create_engine(settings.DATABASE_URL, echo=True)
+engine = create_engine(settings.DATABASE_URL) #, echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -80,5 +80,15 @@ class Alert(Base):
         return f"Alert {self.id}: {self.base}/{self.counter} {self.expression} {self.value}"
 
 Chat.alerts = relationship("Alert", order_by=Alert.id, back_populates="chat")
+
+
+class Notification(Base):
+    __tablename__ = 'notifications'
+
+    alert_id = Column(Integer, ForeignKey('alerts.id'), index=True)
+
+    alert = relationship("Alert", back_populates="notifications")
+
+Alert.notifications = relationship("Notification", order_by=Notification.id, back_populates='alert')
 
 Base.metadata.create_all(engine)

@@ -5,6 +5,7 @@ from sqlalchemy import desc
 
 from chalicelib.db.models import Alert, Chat, Currency, Ticker, session
 from chalicelib.services.poloniex.constants import CURRENCY_NAMES
+from chalicelib.telegrambot.constants import EXPRESSIONS
 
 
 class BotCommands:
@@ -13,8 +14,9 @@ class BotCommands:
             '/start': self.start,
             '/help': partial(self.get_text, data=None, args=None, key='help'),
             '/chuck': self.get_chuck_quote,
-            '/alertstart': self.alertstart,
+            '/setalert': self.setalert,
             '/alerts': self.alerts,
+            '/stopalert': self.stopalert,
 
             '/btcusd': partial(self.ticker, data=None, args=None, base='BTC', counter='USD'),
             '/btceur': partial(self.ticker, data=None, args=None, base='BTC', counter='EUR'),
@@ -52,7 +54,7 @@ class BotCommands:
                 all_members_are_administrators=chat.get('all_members_are_administrators'),
                 description=chat.get('description'),
                 invite_link=chat.get('invite_link'),
-                created=chat.get('created_at'),
+                created=chat.get('created'),
             ))
             session.commit()
         text = self.get_text('start')
@@ -138,17 +140,17 @@ class BotCommands:
             ).filter(
                 Currency.base == 'USD', Currency.counter == counter
             ).order_by(
-                desc(Currency.created_at)).first()
+                desc(Currency.created)).first()
 
         ticker = session.query(
             Ticker
         ).filter(
             Ticker.base == base, Ticker.counter == 'USD'
         ).order_by(
-            desc(Ticker.created_at)).first()
+            desc(Ticker.created)).first()
 
         ticker_data = {
-            'created_at': ticker.created_at,
+            'created': ticker.created,
             'currency_name': CURRENCY_NAMES.get(base),
             'lowest_ask': ticker.lowest_ask * currency_rate,
             'highest_bid': ticker.highest_bid * currency_rate,
@@ -162,24 +164,30 @@ class BotCommands:
         response_template = {
             'content': "<b>{0}/{1} POLONIEX</b>.\n"
                        "<b>Name:</b> {currency_name}\n"
-                       "<b>Time:</b> UTC {created_at}\n\n"
+                       "<b>Time:</b> UTC {created}\n\n"
                        "<b>Lowest Ask:</b> {lowest_ask:.2f} {1}\n"
                        "<b>Highest Bid:</b> {highest_bid:.2f} {1}\n"
                        "<b>Last deal:</b> {last:.2f} {1}\n"
                        "<b>Lowest in 24h:</b> {lowest_24h:.2f} {1}\n"
                        "<b>Highest in 24h:</b> {highest_24h:.2f} {1}\n"
-                       "<b>Trading vol. 24h:</b> {quote_volume:.2f} {0}\n"
+                       "<b>Trading vol. 24h:</b> {quote_volume} {0}\n"
                        "<b>Trading vol. 24h:</b> {base_volume:.2f} {1}\n"
         }
         return response_template.get('content').format(base, counter, **ticker_data)
 
-    def alertstart(self, data, args):
+    def setalert(self, data, args):
+
+        if not args:
+            return "Please provide arguments"
+
         chat_id = data['message']['chat']['id']
         chat = session.query(Chat).filter(Chat.telegram_chat_id == chat_id).one_or_none()
+        try:
+            base, counter, expression, value = args
+        except ValueError:
+            return "Incorrect args.\nExample: <b>BTC UAH > 123456</b>"
 
-        base, counter, expression, value = args
         base = base.upper()
-
         if base not in CURRENCY_NAMES.keys():
             return f"Base currency is incorect. Allowed: {CURRENCY_NAMES.keys()}"
 
@@ -187,15 +195,7 @@ class BotCommands:
         if counter not in ['USD', 'EUR', 'UAH']:
             return f"Counter currency is incorect. Allowed: ['USD', 'EUR', 'UAH']"
 
-        expressions = {
-            '>': '&gt;',
-            '<': '&lt;',
-            '=': '=;',
-            '>=': '&gt;=',
-            '<=': '&lt;=',
-        }
-
-        if expression not in expressions.keys():
+        if expression not in EXPRESSIONS.keys():
             return f"Expression is incorrect."
 
         try:
@@ -213,17 +213,34 @@ class BotCommands:
             )
         )
         session.commit()
-        return f"Alert \"{base}/{counter} {expressions[expression]} {value}\" has been started successfully"
+        return f"Alert <b>\"{base}/{counter} {EXPRESSIONS[expression]['html']} {value}\"</b>" \
+               f" has been set successfully"
 
     def alerts(self, data, args):
         telegram_chat_id = data['message']['chat']['id']
         chat = session.query(Chat).filter(Chat.telegram_chat_id == telegram_chat_id).one()
-        alerts = session.query(Alert).filter(Alert.chat == chat).all()
-        print(alerts)
-        return "List of alerts in console"
+        alerts = session.query(Alert).filter(Alert.chat == chat, Alert.is_active == 1).all()
+        if not alerts:
+            return "There are no active alerts. Use /setalert to create"
+        content = "ACTIVE ALERTS:\n\n"
+        for alert in alerts:
+            content += f"<b>Alert id: {alert.id}</b>\n" \
+                       f"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
+                       f"{float(alert.value)}\n\n"
+        return content
 
-    def alertstop(self, data, args):
-        pass
+    def stopalert(self, data, args):
+        alert = session.query(Alert).filter(Alert.id == args[0]).one_or_none()
+        if alert:
+            alert.is_active = False
+            session.add(alert)
+            session.commit()
+            return f"STOPPED!\n" \
+                   f"Alert id: {alert.id}\n" \
+                   f"{alert.base}/{alert.counter} {EXPRESSIONS[alert.expression]['html']} " \
+                   f"{float(alert.value)}\n\n"
+        else:
+            return "Incorrect alert ID. To list all active alerts with IDs use /alerts"
 
     @staticmethod
     def default(*args, **kwargs):
