@@ -193,7 +193,7 @@ class BotCommands:
     def stopalert(data, args):
 
         if not args:
-            return "Please provide alert ID argument /help"
+            return "Please provide argument: ID. To get ID use /alerts"
 
         alert = session.query(Alert).filter(Alert.id == args[0]).one_or_none()
 

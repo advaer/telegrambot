@@ -11,6 +11,8 @@ from chalicelib.services.currencylayer.utils import api_call as currency_api_cal
 from chalicelib.services.poloniex.constants import CURRENCY_NAMES
 from chalicelib.services.poloniex.utils import api_call as poloniex_api_call
 from chalicelib.telegrambot.constants import EXPRESSIONS
+from chalice import Chalice
+
 
 from .utils import (
     compare,
@@ -20,6 +22,9 @@ from .utils import (
     get_latest_ticker,
     send_html_message,
 )
+
+
+app = Chalice(app_name='advaerbot')
 
 
 def get_currencies():
@@ -59,7 +64,7 @@ def get_notification_content(ticker, alert):
 def process_single_alert(alert):
     currency_rate = get_currency_rate(alert.counter)
     ticker = get_latest_ticker(alert.base)
-
+    app.log.debug(f"Process single alert: {alert}")
     if compare(ticker.last*currency_rate, alert.value) in EXPRESSIONS[alert.expression]['result']:
         notifications = session.query(Notification).filter(
             Notification.alert_id == alert.id,
@@ -80,5 +85,6 @@ def process_single_alert(alert):
 
 def process_all_alerts():
     alerts = session.query(Alert).filter(Alert.is_active == 1).all()
+    app.log.debug(f"Alerts: {alerts}")
     for alert in alerts:
         process_single_alert(alert)
