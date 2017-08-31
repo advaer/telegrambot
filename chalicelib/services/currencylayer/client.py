@@ -12,7 +12,7 @@ class CurrencyLayerClient:
             'access_key': settings.CURRENCY_ACCESS_KEY,
             'currencies': ','.join(currencies)
         }
-        response = requests.get(self.api_url, params=data)
+        response = requests.get(self.api_url, params=data, timeout=2)
         return response.json()
 
 

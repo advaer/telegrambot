@@ -60,7 +60,6 @@ def compare(x, y):
 
 
 def get_currency_rate(counter):
-    session.expire_all()
     if counter == 'USD':
         currency_rate = 1
     else:
@@ -74,7 +73,6 @@ def get_currency_rate(counter):
 
 
 def get_latest_ticker(base):
-    session.expire_all()
     return session.query(
         Ticker
     ).filter(

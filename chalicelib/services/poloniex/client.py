@@ -19,7 +19,7 @@ class PoloniexClient:
             data = {
                 'command': api_method,
             }
-            return requests.get(self.public_api_url, data)
+            return requests.get(self.public_api_url, data, timeout=2)
         else:
             raise NotImplementedError
 

@@ -79,8 +79,12 @@ class BotCommands:
 
     @staticmethod
     def get_chuck_quote(**kwargs):
-        quote = requests.get('https://api.chucknorris.io/jokes/random')
-        return quote.json().get('value')
+        try:
+            quote = requests.get('https://api.chucknorris.io/jokes/random', timeout=2)
+        except requests.exceptions.Timeout:
+            return "Oops... something went wrong. Please, try again later."
+        else:
+            return quote.json().get('value')
 
     @staticmethod
     def ticker(base, counter, **kwargs):

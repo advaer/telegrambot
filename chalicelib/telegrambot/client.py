@@ -16,7 +16,8 @@ class TelegramBotClient:
                 "chat_id": data.get('chat_id'),
                 "parse_mode": parse_mode,
                 "text": data.get('content')
-            }
+            },
+            timeout=2
         )
         return response
 

@@ -84,7 +84,7 @@ def process_single_alert(alert):
 
 
 def process_all_alerts():
-    session.expire_all()
+    app.log.debug("Session cleaned")
     alerts = session.query(Alert).filter(Alert.is_active == 1).all()
     app.log.debug(f"Alerts: {alerts}")
     for alert in alerts:
