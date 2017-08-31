@@ -70,7 +70,7 @@ def process_single_alert(alert):
             Notification.alert_id == alert.id,
             Notification.created >= datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
         ).count()
-
+        app.log.debug(f"Process single alert: {alert}")
         if not notifications:
             content = get_notification_content(ticker, alert)
             response = send_html_message(chat_id=alert.chat.telegram_chat_id, content=content)
@@ -84,6 +84,7 @@ def process_single_alert(alert):
 
 
 def process_all_alerts():
+    session.expire_all()
     alerts = session.query(Alert).filter(Alert.is_active == 1).all()
     app.log.debug(f"Alerts: {alerts}")
     for alert in alerts:
